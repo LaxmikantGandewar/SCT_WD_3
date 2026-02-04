@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Glass Calculator</title>
+
+<style>
+:root{
+  --glass: rgba(255,255,255,0.15);
+  --border: rgba(255,255,255,0.25);
+  --accent: #00ffd5;
+  --dark: #0a0f1f;
+  --text: #ffffff;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(135deg,#020617,#020617,#020617,#0f172a);
+}
+
+/* Calculator */
+.calculator{
+  width:340px;
+  background: var(--glass);
+  backdrop-filter: blur(25px);
+  border:1px solid var(--border);
+  border-radius:25px;
+  padding:25px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* Display */
+.display{
+  background: rgba(0,0,0,0.4);
+  border-radius:15px;
+  padding:20px;
+  text-align:right;
+  margin-bottom:20px;
+  border:1px solid var(--border);
+}
+
+#history{
+  font-size:0.9rem;
+  color:#aaa;
+  min-height:18px;
+}
+
+#result{
+  font-size:2.8rem;
+  font-weight:bold;
+  color: var(--accent);
+}
+
+/* Buttons */
+.buttons{
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:12px;
+}
+
+button{
+  height:60px;
+  border:none;
+  border-radius:15px;
+  background: rgba(255,255,255,0.08);
+  color:var(--text);
+  font-size:1.2rem;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-2px);
+}
+
+button:active{
+  transform: scale(0.95);
+}
+
+.op{
+  color: var(--accent);
+  font-weight:bold;
+}
+
+.eq{
+  background: var(--accent);
+  color:#000;
+  font-weight:bold;
+}
+
+.eq:hover{
+  background:#00d4b2;
+}
+
+.ac{
+  color:#ff5c5c;
+}
+
+.zero{
+  grid-column: span 2;
+}
+
+@media(max-width:400px){
+  .calculator{
+    width:95%;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="calculator">
+
+  <div class="display">
+    <div id="history"></div>
+    <div id="result">0</div>
+  </div>
+
+  <div class="buttons">
+    <button class="ac" onclick="clearAll()">AC</button>
+    <button class="op" onclick="back()">⌫</button>
+    <button class="op" onclick="append('%')">%</button>
+    <button class="op" onclick="append('/')">÷</button>
+
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button class="op" onclick="append('*')">×</button>
+
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button class="op" onclick="append('-')">−</button>
+
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+    <button class="op" onclick="append('+')">+</button>
+
+    <button class="zero" onclick="append('0')">0</button>
+    <button onclick="append('.')">.</button>
+    <button class="eq" onclick="solve()">=</button>
+  </div>
+
+</div>
+
+<script>
+const res = document.getElementById("result");
+const hist = document.getElementById("history");
+let expr = "0";
+
+function update(){
+  res.innerText = expr.replace(/\*/g,"×").replace(/\//g,"÷");
+}
+
+function append(val){
+  if(expr==="0" && val!=="."){
+    expr = val;
+  }else{
+    const last = expr.slice(-1);
+    if(["+","-","*","/","%"].includes(val) && ["+","-","*","/","%"].includes(last)) return;
+    expr += val;
+  }
+  update();
+}
+
+function clearAll(){
+  expr="0";
+  hist.innerText="";
+  update();
+}
+
+function back(){
+  expr = expr.length>1 ? expr.slice(0,-1) : "0";
+  update();
+}
+
+function solve(){
+  try{
+    hist.innerText = expr + " =";
+    let r = eval(expr);
+    expr = Number.isInteger(r) ? r.toString() : r.toFixed(4).replace(/\.0+$/,"" );
+    update();
+  }catch{
+    res.innerText = "Error";
+    setTimeout(clearAll,1200);
+  }
+}
+
+window.addEventListener("keydown",e=>{
+  if(e.key>=0 && e.key<=9 || e.key===".") append(e.key);
+  if(["+","-","*","/"] .includes(e.key)) append(e.key);
+  if(e.key==="Enter") solve();
+  if(e.key==="Backspace") back();
+  if(e.key==="Escape") clearAll();
+});
+</script>
+
+</body>
+</html>
